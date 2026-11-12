@@ -1,0 +1,45 @@
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+
+// Middleware to protect routes
+export const protectRoute = async (req, res, next) => {
+    try {
+        const token = req.headers.token;
+
+        console.log("TOKEN RECEIVED:", token);
+
+        if (!token) {
+            return res.status(403).json({
+                success: false,
+                message: "No token provided"
+            });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        console.log("DECODED TOKEN:", decoded);
+
+        const user = await User.findById(decoded.userId);
+
+        console.log("USER FOUND:", user);
+
+        if (!user) {
+            return res.status(403).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        req.user = user;
+
+        next();
+
+    } catch (error) {
+        console.log("AUTH ERROR:", error.message);
+
+        return res.status(403).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
