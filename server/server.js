@@ -33,7 +33,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 
 // ======================================
 // Body Parser
@@ -41,7 +40,7 @@ app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "4mb" }));
 
 // ======================================
-// Socket.IO (শুধুমাত্র লোকাল বা VPS এর জন্য)
+// Socket.IO
 // ======================================
 export const io = new Server(server, {
     cors: {
@@ -88,14 +87,11 @@ app.use("/api/auth", userRouter);
 app.use("/api/messages", messageRouter);
 
 // ======================================
-// Local Development
+// Start Server
 // ======================================
-if (process.env.NODE_ENV !== "production") {
-    const PORT = process.env.PORT || 5000;
-    server.listen(PORT, () => {
-        console.log("Server is running on PORT: " + PORT);
-    });
-}
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+    console.log("Server is running on PORT: " + PORT);
+});
 
-// Vercel এর জন্য অবশ্যই app এক্সপোর্ট করতে হবে
 export default app;
