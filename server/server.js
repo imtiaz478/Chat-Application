@@ -16,12 +16,21 @@ const server = http.createServer(app);
 // ======================================
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://chat-application-73vw.vercel.app"
+    "https://chat-application-73vw.vercel.app",
+    "https://chat-application-phi-liart.vercel.app",
+    "https://chat-application-dvoqka4ta-me-5143.vercel.app"
 ];
+
+const isOriginAllowed = (origin) => {
+    if (!origin) return true;
+    if (allowedOrigins.includes(origin)) return true;
+    if (origin.endsWith(".vercel.app")) return true;
+    return false;
+};
 
 const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (isOriginAllowed(origin)) {
             callback(null, true);
         } else {
             callback(new Error("Not allowed by CORS"));
@@ -44,7 +53,13 @@ app.use(express.json({ limit: "4mb" }));
 // ======================================
 export const io = new Server(server, {
     cors: {
-        origin: allowedOrigins,
+        origin: function (origin, callback) {
+            if (isOriginAllowed(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true
     }
 });
